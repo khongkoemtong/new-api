@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { Link } from "react-router"
+import { getProfile } from "../features/auth/authAction"
 
 // Avtar with darpdown menu
-const AvatarMenue = () => {
+const AvatarMenue = ({avatar}) => {
 
     const [state, setState] = useState(false)
     const profileRef = useRef()
@@ -30,7 +31,7 @@ const AvatarMenue = () => {
                     onClick={() => setState(!state)}
                 >
                     <img
-                        src="https://api.uifaces.co/our-content/donated/xZ4wg2Xj.jpg"
+                        src={avatar}
                         className="w-full h-full rounded-full"
                     />
                 </button>
@@ -55,23 +56,36 @@ const AvatarMenue = () => {
 
 export default function AppNavbar() {
 
+    const dispatch = useDispatch()
+
     const count = useSelector((state) => state.counter.value)
+    const isAuthenticated = useSelector(state => state.auth.isAuthenticated)
+    const profile = useSelector(state => state.auth.profile)
+    const accessToken = useSelector(state => state.auth.accessToken)
 
     const [state, setState] = useState(false)
+
+
+    useEffect(() => {
+        console.log('app navbar use effect')
+        dispatch(getProfile(accessToken))
+    }, [isAuthenticated])
+
 
     // Replace javascript:void(0) paths with your paths
     const navigation = [
         { title: "People", path: "/people" },
-        { title: "Contact Us", path: "/contact-us" },
-        { title: "About Us", path: "/about-us" },
+        { title: "Contact Us", path: "/Contactus" },
+        { title: "About Us", path: "/Aboutus" },
     ]
 
     const submenuNav = [
-        { title: "Overview", path: "javascript:void(0)" },
-        { title: "Integration", path: "javascript:void(0)" },
-        { title: "Billing", path: "javascript:void(0)" },
-        { title: "Transactions", path: "javascript:void(0)" },
-        { title: "Plans", path: "javascript:void(0)" },
+        { title: "people", path: "javascript:void(0)" },
+        { title: "Now playing", path: "/Now playing" },
+        { title: "Upcoming", path: "javascript:void(0)" },
+        { title: "Top Rated", path: "javascript:void(0)" },
+        { title: "On TV", path: "javascript:void(0)" },
+
     ]
 
 
@@ -132,7 +146,15 @@ export default function AppNavbar() {
                                 )
                             })
                         }
-                        <AvatarMenue />
+                        {
+                            isAuthenticated && isAuthenticated ? (
+                                <AvatarMenue avatar={profile && profile.avatar} />
+                            ) : (<li>
+                                <Link to='/login' className="block text-gray-700 hover:text-gray-900">
+                                    Log in
+                                </Link>
+                            </li>)
+                        }
                     </ul>
                 </div>
             </div>
@@ -154,4 +176,4 @@ export default function AppNavbar() {
             </nav>
         </header>
     )
-} 
+}
